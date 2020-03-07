@@ -6,7 +6,10 @@
  */
 package com.cc.thread;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  *  实现Callable, 步骤：
@@ -17,7 +20,7 @@ import java.util.concurrent.*;
  * @author michael
  * @version 1.0 Created on 2020/3/6 11:02
  */
-public class MyCallable implements Callable<Object> {
+public class MyCallable implements Callable<String> {
 
     private int a;
 
@@ -26,35 +29,28 @@ public class MyCallable implements Callable<Object> {
     }
 
     @Override
-    public Object call() throws Exception {
+    public String call() throws InterruptedException {
 
         System.out.println("thread is ----->" + Thread.currentThread().getName());
         System.out.println("param is ----->" + a);
+        Thread.sleep(2000);
+
+
         return "call 返回值成功";
     }
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println("start=================== " + Thread.currentThread().getName());
-
-        MyCallable myCallable = new MyCallable(3);
-
-        /*FutureTask<Object> futureTask = new FutureTask<>(myCallable);
-        Thread thread = new Thread(futureTask, "future");
-        thread.start();
-        System.out.println(futureTask.get());*/
-
+        System.out.println("start=================== thread ->" + Thread.currentThread().getName());
 
         ExecutorService service = Executors.newCachedThreadPool();
-        Future<Object> future = service.submit(myCallable);
+//        for (int i = 0; i < 5; i++) {
+            Future<String> future = service.submit(new MyCallable(56321));
+//        }
         service.shutdown();
-        String rst = (String) future.get();
-        System.out.println(rst);
+        System.out.println(future.get());
 
-
-        System.out.println("end=================== " + Thread.currentThread().getName());
-
-
+        System.out.println("end=================== thread ->" + Thread.currentThread().getName());
 
 
     }

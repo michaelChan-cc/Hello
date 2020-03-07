@@ -25,7 +25,7 @@ public class MyRunnable implements Runnable{
         System.out.println("start=================== " + Thread.currentThread().getName());
 
         MyRunnable my = new MyRunnable();
-        new Thread(my).start();//new thread, 执行顺序由CPU控制
+        new Thread(my,"自定义线程名字").start();//new thread, 执行顺序由CPU控制
 
         System.out.println("end=================== " + Thread.currentThread().getName());
     }
