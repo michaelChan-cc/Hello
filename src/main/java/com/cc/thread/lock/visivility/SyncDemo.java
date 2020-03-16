@@ -4,7 +4,7 @@
  * @date: 2020/3/16 9:56
  * @copyright: 南京凯盛
  */
-package com.cc.thread.visivility;
+package com.cc.thread.lock.visivility;
 
 /**
  *

@@ -4,7 +4,7 @@
  * @date: 2020/3/16 9:56
  * @copyright: 南京凯盛
  */
-package com.cc.thread.visivility;
+package com.cc.thread.lock.visivility;
 
 /**
  *  可见性： synchronized = volatile （两者都是直接读取主内存，不使用缓存机制）
@@ -20,7 +20,7 @@ package com.cc.thread.visivility;
  */
 public class VolatileDemo {
 
-    private static final  int max = 1000000;
+    private static final int max = 1000000;
 
     /**
      * count++ 程序代码是一行，但是翻译成 CPU 指令确是三行( 不信你用 javap -c 命令试试)
