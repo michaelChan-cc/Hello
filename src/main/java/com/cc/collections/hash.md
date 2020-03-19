@@ -6,12 +6,17 @@
 hash采用 16位 数组， 高低位各自16位二进制数值， 将高位右移16位，前面补充16个0；
 然后将新的数值 与 旧值 进行 异或 运算。
 ### hashmap
-以HashMap为例，16位数组，数组的下标相同， 使用链表连接 。每个Node 节点：key+hash+value+next
+以HashMap为例，16位数组，数组的下标相同， 使用链表连接 。每个Node 节点：key+hash+value+next  
 tab[(n - 1) & hash]
-查找或者插入步骤： 先根据HASH找到数组下标， 在一个链表找到对应的node。
-为什么不安全？ node 存放在heap中，而操作put() 存在各自现场的操作数栈，多线程自然存在ABA问题。
+查找或者插入步骤： 先根据HASH找到数组下标， 在一个链表找到对应的node。 
+```text
+为什么不安全？ node 存放在heap中，而操作put() 存在各自现场的操作数栈，多线程自然存在ABA问题。  
 解决： 1. hashtable 在hashmap的put() 加上synchronize, 对整个map对象加锁，低效阻塞。
       2. concurrentHashMap 解决ABA问题，采用CAS方法，对数组的某个下标节点 先比较后交换，即只对这个tab加锁
+      Segment段，即分段锁，数组->Segment数组， extends ReentrantLock
+
+jdk1.8 改动： 在链表基础改成 元素>8则红黑树， 横向扩容， 加速链表上的检索速度 降低O(logN)
+```
 
 
 ### 为什么使用^运算
