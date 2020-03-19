@@ -4,13 +4,10 @@
  * @date: 2020/3/7 11:51
  * @copyright: 南京凯盛
  */
-package com.cc.collection;
+package com.cc.collections.collection.list;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  *  ArrayList 非线程安全的类
