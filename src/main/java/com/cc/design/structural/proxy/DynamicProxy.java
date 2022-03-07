@@ -4,7 +4,7 @@
  * @date: 2020/3/7 16:59
  * @copyright: 南京凯盛
  */
-package com.cc.design.proxy;
+package com.cc.designmode.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

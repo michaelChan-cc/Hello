@@ -4,7 +4,7 @@
  * @date: 2020/3/7 16:27
  * @copyright: 南京凯盛
  */
-package com.cc.design.proxy;
+package com.cc.designmode.proxy;
 
 /**
  *  静态代理
