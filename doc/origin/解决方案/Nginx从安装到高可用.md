@@ -1009,11 +1009,3 @@ virtual_server 192.168.1.150 80{
     }
 }
 ```
-
-
-
-![图片](https://mmbiz.qpic.cn/mmbiz_gif/TNUwKhV0JpTGQqtlGfEHkjibtshlaDwVKzjqq2pnpmYC14bKxDtSuhpWZWfVcicj5PFsoSMzuzicKIWZbsBpGXiaicg/640?wx_fmt=gif&tp=webp&wxfrom=5&wx_lazy=1)
-
-```
-1. SpringBoot+拦截器+自定义异常+自定义注解+全局异常处理简单实现接口权限管理2. 深入Java线程池：从设计思想到源码解读3. 坑爹！Quartz 重复调度问题，你遇到过么？
-```
