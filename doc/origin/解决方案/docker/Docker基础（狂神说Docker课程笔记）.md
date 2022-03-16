@@ -6,7 +6,7 @@
 
 
 
-<img src="D:\JetBrains\IntelliJ_directory\Learning\doc\origin\解决方案\Docker基础（狂神说Docker课程笔记）.assets\image-20220303102814814.png" alt="image-20220303102814814" style="zoom:80%;" />
+<img src="D:\JetBrains\IntelliJ_directory\Learning\doc\origin\解决方案\docker\Docker基础（狂神说Docker课程笔记）.assets\image-20220303102814814.png" alt="image-20220303102814814" style="zoom:80%;" />
 
 ## Docker为什么出现？
 
@@ -233,7 +233,7 @@ Dockerfile是用来构建docker镜像的脚本文件，实际上就是一个命�
 
 Dcoker镜像的分层
 
-![image-20220303121042058](D:\JetBrains\IntelliJ_directory\Learning\doc\origin\解决方案\Docker基础（狂神说Docker课程笔记）.assets\image-20220303121042058.png)
+![image-20220303121042058](D:\JetBrains\IntelliJ_directory\Learning\doc\origin\解决方案\docker\Docker基础（狂神说Docker课程笔记）.assets\image-20220303121042058.png)
 
 Dockerfile是面向开发者的，发布项目时需要做成镜像，那么就需要编写 Dockerfile 脚本文件。涉及如下几个关键点：
 
@@ -281,7 +281,7 @@ docker push    # 发布镜像
 
 ## Dockerfile小结
 
-![image-20220303121104718](D:\JetBrains\IntelliJ_directory\Learning\doc\origin\解决方案\Docker基础（狂神说Docker课程笔记）.assets\image-20220303121104718.png)
+![image-20220303121104718](D:\JetBrains\IntelliJ_directory\Learning\doc\origin\解决方案\docker\Docker基础（狂神说Docker课程笔记）.assets\image-20220303121104718.png)
 
 # Docker网络[#](https://www.cnblogs.com/koktlzz/p/14105026.html#docker网络)
 
@@ -290,7 +290,7 @@ docker push    # 发布镜像
 安装 Docker 以后，宿主机会自动配置一个虚拟的网桥叫 docker0，并且 Docker 会在私有 IP 网段中，选择一个和宿主机不同的IP地址和子网分配给 docker0，例如将 172.17.0.1/16 分配给 docker0 网桥 。
 一般情况下，使用 Docker 创建一个容器的时候，都会自动创建一对虚拟的网络接口（叫做veth-pair），分别放在宿主机和新容器中，这就是连接各种虚拟网络设备的桥梁。宿主机一端的虚拟接口（即veth）会连接到 docker0 网桥上；而容器一端的虚拟接口（即eth0）只能在该容器内可见，并且会从网桥可用地址段中获取一个空闲地址分配给该容器（例如172.17.0.2/16）。通过这种方式，宿主机可以跟容器通信，容器之间也可以相互通信。Docker 就创建了在宿主机和所有容器之间一个虚拟共享网络。当然用户也可以通过 docker network 命令来手动管理网络。
 
-![在这里插入图片描述](D:\JetBrains\IntelliJ_directory\Learning\doc\origin\解决方案\Docker基础（狂神说Docker课程笔记）.assets\watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAd3hmYm9sZw==,size_20,color_FFFFFF,t_70,g_se,x_16.png)
+![在这里插入图片描述](D:\JetBrains\IntelliJ_directory\Learning\doc\origin\解决方案\docker\Docker基础（狂神说Docker课程笔记）.assets\watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAd3hmYm9sZw==,size_20,color_FFFFFF,t_70,g_se,x_16.png)
 
 安装Docker的时候，它会自动创建四个网络：bridge（创建容器默认连接到此网络），host，container，none。在Docker 1.9版本以后新增了用户自定义网络模式
 
