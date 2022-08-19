@@ -1,0 +1,550 @@
+##########################################################
+#                   服务器相关配置                                                                                   #
+##########################################################
+server:
+  port:  40017
+  servlet:
+    contextPath: /
+    session:
+      #如果使用sessionRedis，则需要与leapower.conf.sessionRedis.timeoutSecond的值保持一致！
+      timeout: 3600s
+#        multipart:
+#            max-file-size: 1000MB
+#            max-request-size: 1000MB
+#该配置是禁止请求响应的header中返回X-Application-Context(会泄露服务的信息)
+management:
+  add-application-context-header: false
+  health.jms.enabled: false
+  security:
+    enabled: false
+##########################################################
+#                   spring的配置                                                                                 #
+##########################################################
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.14.13:8848
+  main:
+    allow-bean-definition-overriding: true
+  profiles.active: dev,swagger
+  application:
+    name: imom-business-equipment
+  jackson:
+    serialization.write_dates_as_timestamps: true
+  jpa:
+    database-platform: com.kisen.imom.business.equipment.config.CustomMysql5Dialect
+    show-sql: true
+    # properties:
+    #     hibernate:
+    #         show_sql: true
+    hibernate:
+      query:
+        plan_cache_max_size: 128
+        plan_parameter_metadata_max_size: 64
+      ddl-auto: none
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.14.12:3306/eqt_db?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: Kisen123456
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 15
+      auto-commit: true
+      idle-timeout: 30000
+      pool-name: HikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+      connection-init-sql: SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci
+  activiti:
+    ####校验流程文件，默认校验resources下的processes文件夹里的流程文件
+    check-process-definitions: false
+  data.redis.repositories.enabled: false
+  kafka:
+    opcSoft:
+      opcVariable:
+        topic: OPCVariableAlarmT
+        group_id: OPC_Variable_Alarm_EQT_GROUP
+    bootstrap-servers: 192.168.14.13:9092,192.168.14.13:9093
+    consumer: # consumer消费者
+      #group-id: OPC_Variable_Alarm_EQT_GROUP # 默认的消费组ID
+      enable-auto-commit: true # 是否自动提交offset
+      auto-commit-interval: 100 # 提交offset延时(接收到消息后多久提交offset)
+      auto-offset-reset: latest
+      # 当kafka中没有初始offset或offset超出范围时将自动重置offset;
+      # earliest:重置为分区中最小的offset;
+      # latest:重置为分区中最新的offset(消费分区中新产生的数据);
+      # none:只要有一个分区不存在已提交的offset,就抛出异常;
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+##########################################################
+#                   ribbon及其负载均衡配置                                                             #
+##########################################################
+# 定义ribbon的负载均衡，配置说明：
+# 服务名.ribbon.NFLoadBalancerRuleClassName: 具体负载均衡的包名+类名称
+# 负载均衡策略：BestAvailableRule、AvailabilityFilteringRule、WeightedResponseTimeRule、RetryRule、RoundRobinRule、RandomRule
+# 负载均衡的默认策略为：ZoneAvoidanceRule
+# 配置方式：服务名.ribbon.NFLoadBalancerRuleClassName: com.netflix.loadbalancer.负载均衡策略类名（参见上方的负载均衡策略）
+#leapower-oss:
+#    ribbon:
+#        NFLoadBalancerRuleClassName: com.netflix.loadbalancer.AvailabilityFilteringRule
+# ribbon的相关配置
+# 具体的参数配置参见：com.netflix.client.config.CommonClientConfigKey class的详细参数
+# 具体的参数配置参见：org.springframework.cloud.netflix.ribbon.apache.HttpClientRibbonConfiguration class的详细参数
+ribbon:
+  eager-load:
+    # 开启ribbon饥饿模式，客户端缓存
+    enabled: true
+    # 需要缓存的客户端服务名，可逗号分隔配置多个
+    #clients: leapower-user,leapower-oss
+  ConnectTimeout: 60000
+  ReadTimeout: 60000
+  #负载均衡类型
+  NFLoadBalancerRuleClassName: com.netflix.loadbalancer.AvailabilityFilteringRule
+  #重试次数
+  MaxAutoRetries: 3
+  #eureka客户端ribbon刷新时间
+  #默认30s,单位：毫秒
+  ServerListRefreshInterval: 1000
+  #启用ribbon使用httpclient作为后端实现
+  httpclient:
+    enabled: true
+##########################################################
+#                   feign及其日志配置                                                                        #
+##########################################################
+# feign的相关配置
+# feign httpclient的配置参见：org.springframework.cloud.netflix.feign.support.FeignHttpClientProperties
+# feign client的配置参见：org.springframework.cloud.netflix.feign.FeignClientProperties
+feign:
+  hystrix:
+    enabled: true
+  httpclient:
+    enabled: true
+  client:
+    default:
+      loggerLevel: FULL
+      connectTimeout: 60000
+      readTimeout: 60000
+# feign日志级别：
+#    NONE 不记录 (默认不记录)
+#    BASIC 仅记录请求方式和URL及响应的状态代码与执行时间
+#    HEADERS 日志的基本信息与请求及响应的头
+#    FULL 记录请求与响应的头和正文及元数据
+# 开启feign日志：
+# 1. 在@Configuration配置类下增加：
+#    @Bean
+#    public Logger.Level feignLoggerLevel() {
+#        return Logger.Level.FULL;
+#    }
+# 2. logging.level.包名称+feign调用类名: DEBUG (DEBUG/INFO/WARN/ERROR)；如下方配置
+##########################################################
+#                   hystrix熔断配置                                                                          #
+##########################################################
+# hystrix相关配置
+# hystrix熔断器，请求超时时间
+# hystrix参数配置，参见以下配置：
+# com.netflix.hystrix.contrib.javanica.conf.HystrixPropertiesManager
+# com.netflix.hystrix.HystrixCommandProperties
+# com.netflix.hystrix.HystrixCollapserProperties
+# org.springframework.cloud.netflix.hystrix.HystrixMetricsProperties
+hystrix:
+  # 如果是thread，则需要设置线程池
+  # 如果SEMAPHORE，则需要设置hystrix.command.default.execution.isolation.semaphore.maxConcurrentRequests:10  10为默认值，需要调整
+  #  非常重要！！！因为feign在使用hystrix时，hystrix如果采用THREAD模式，则会在新的线程中执行请求，此时需要需要开启request-atrribute共享
+  propagate.request-attribute.enabled: false
+  # 非常重要！！！因为feign在使用hystrix时，hystrix如果采用THREAD模式，则会在新的线程中执行请求，此时需要共享主线程的SecurityContext
+  shareSecurityContext: true
+  threadpool:
+    default:
+      #并发执行的最大线程数，默认10
+      coreSize: 500
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          #隔离模式为：THREAD 或者 SEMAPHORE
+          strategy: SEMAPHORE
+          semaphore:
+            #默认：10
+            maxConcurrentRequests: 200
+          thread:
+            #单位：毫秒
+            timeoutInMilliseconds: 60000
+##########################################################
+#                   服务注册中心配置                                                                               #
+##########################################################
+eureka:
+  instance:
+    #真实服务需要写真实服务所在地址
+    instance-id: 127.0.0.1:40002
+    prefer-ip-address: true
+    #真实服务需要写真实服务所在地址
+    ip-address: 127.0.0.1
+    # 服务过期时间配置,超过这个时间没有接收到心跳EurekaServer就会将这个实例剔除
+    # 注意，EurekaServer一定要设置eureka.server.eviction-interval-timer-in-ms否则这个配置无效，这个配置一般为服务刷新时间配置的三倍
+    # 默认90s
+    #        lease-expiration-duration-in-seconds: 15
+    # 服务刷新时间配置，每隔这个时间会主动心跳一次
+    # 默认30s
+  #        lease-renewal-interval-in-seconds: 5
+  client:
+    #自定义健康检查地址
+    health-check-url: http://127.0.0.1:40002/version
+    healthcheck:
+      enabled: true
+    # eureka client刷新本地缓存时间
+    # 默认30s
+    registry-fetch-interval-seconds: 5
+    serviceUrl:
+      # defaultZone: http://admin:admin@localhost:30001/eureka/,http://admin:admin@localhost:30002/eureka/
+      defaultZone: http://admin:leapowerFrameworkEurekaSecurity@127.0.0.1:30001/eureka/
+##########################################################
+#                   项目日志配置                                                                                       #
+##########################################################
+# 本地LOG配置
+logging:
+  path: ./logs
+  level:
+    cn.leapower.gateway: INFO
+    com.dhc: INFO
+    com.kisen: INFO
+    cn.dhc: INFO
+    org.springframework: INFO
+    com.dhc.leapower.common.web.handler.ServiceStartupHandler: INFO
+##########################################################
+#                   服务调用JWT配置                                                                              #
+##########################################################
+security:
+  authentication:
+    jwt:
+      secret: Leapower_Framework_Security_Key
+##########################################################
+#                   项目配置                                                                                               #
+##########################################################
+leapower:
+  config:
+    locale.language: zh_CN
+    schedulerx:
+      ### 执行器通讯TOKEN [选填]：非空时启用；
+      accessToken: kisen123
+      ### 调度中心部署跟地址 [选填]：如调度中心集群部署存在多个地址则用逗号分隔。执行器将会使用该地址进行"执行器心跳注册"和"任务结果回调"；为空则关闭自动注册；
+      admin.addresses: http://192.168.14.13:8889/leapower-schedulerx-admin
+      executor:
+        ### 执行器AppName [选填]：执行器心跳注册分组依据；为空则关闭自动注册
+        appname: imom-business-equipment-job
+        ### 执行器IP [选填]：多网卡时可手动设置指定IP，该IP不会绑定Host仅作为通讯实用；地址信息用于 "执行器注册" 和 "调度中心请求并触发任务"；
+        ip: 192.168.23.123
+        ### 执行器端口号 [选填]：小于等于0则自动获取；默认端口为9999，单机部署多个执行器时，注意要配置不同执行器端口；
+        port: 9998
+        ### 执行器运行日志文件存储磁盘路径 [选填] ：需要对该路径拥有读写权限；为空则使用默认路径；
+        logpath: d:/tp
+        ### 执行器日志文件保存天数 [选填] ： 过期日志自动清理, 限制值大于等于3时生效; 否则, 如-1, 关闭自动清理功能；
+        logretentiondays: 30
+    cache:
+      cacheType: REDIS
+      redisCacheKey: dataCache
+    dictCache:
+      cacheType: REDIS
+    internationalCache:
+      cacheType: REDIS
+    sequenceCache:
+      cacheType: REDIS
+    discovery:
+      vendor: NACOS
+    feign:
+      enableFeignInterceptor: true
+    #是否开启sql注入校验
+    enableSqlInjectionFilter: true
+    #是否开启请求地址校验
+    enableUriAuthentication: false
+    duplicateSubmit:
+      enable: true
+      #重复提交间隔时间
+      submitIntervalMillisecond: 1000
+      #sessionKeyType可选类型：UNIQUE, CLASSANDMETHOD, METHOD, CLASS
+      sessionKeyType: UNIQUE
+    auth:
+      # 认证方式可选：jwt和session ；jwt为基于token机制;在微服务下，authType应为jwt
+      authType: jwt
+      whiteList: /w/equipments/*/getAll,/webservice/oeAlarmMsg,/w/factoryObjects/*/update,/w/equipments/*getRealTimeDataByEqt,/w/kpis/batchDelete,/w/diagnosisThird/*
+    redis:
+      #REDIS实例名称（international实例）
+      internationalCache:
+        mode: SINGLE
+        nodes:
+          - 192.168.14.12:6379
+        maxRedirects: 3
+        database: 0
+        password:
+        timeoutSecond: 86400
+        pool:
+          maxTotal: 20
+          maxIdle: 20
+          minIdle: 0
+          maxWaitMillis: 1
+          minEvictableIdleTimeMillis: 1800000
+          numTestsPerEvictionRun: 3
+          softMinEvictableIdleTimeMillis: 1800000
+          testOnBorrow: false
+          testWhileIdle: true
+          testOnReturn: false
+          timeBetweenEvictionRunsMillis: -1
+      #REDIS实例名称（dict实例）
+      dictCache:
+        mode: SINGLE
+        nodes:
+          - 192.168.14.12:6379
+        maxRedirects: 3
+        database: 0
+        password:
+        timeoutSecond: 86400
+        pool:
+          maxTotal: 20
+          maxIdle: 20
+          minIdle: 0
+          maxWaitMillis: 1
+          minEvictableIdleTimeMillis: 1800000
+          numTestsPerEvictionRun: 3
+          softMinEvictableIdleTimeMillis: 1800000
+          testOnBorrow: false
+          testWhileIdle: true
+          testOnReturn: false
+          timeBetweenEvictionRunsMillis: -1
+      #REDIS实例名称（sequence实例）
+      sequenceCache:
+        mode: SINGLE
+        nodes:
+          - 192.168.14.12:6379
+        maxRedirects: 3
+        database: 0
+        password:
+        timeoutSecond: 86400
+        pool:
+          maxTotal: 30
+          maxIdle: 20
+          minIdle: 0
+          maxWaitMillis: 1
+          minEvictableIdleTimeMillis: 1800000
+          numTestsPerEvictionRun: 3
+          softMinEvictableIdleTimeMillis: 1800000
+          testOnBorrow: false
+          testWhileIdle: true
+          testOnReturn: false
+          timeBetweenEvictionRunsMillis: -1
+      # cacheable 使用场景
+      dataCache:
+        mode: SINGLE
+        nodes:
+          - 192.168.14.12:6379
+        maxRedirects: 3
+        database: 0
+        password:
+        timeoutSecond: 86400
+        pool:
+          maxTotal: 20
+          maxIdle: 20
+          minIdle: 0
+          maxWaitMillis: 1
+          minEvictableIdleTimeMillis: 1800000
+          numTestsPerEvictionRun: 3
+          softMinEvictableIdleTimeMillis: 1800000
+          testOnBorrow: false
+          testWhileIdle: true
+          testOnReturn: false
+          timeBetweenEvictionRunsMillis: -1
+      #REDIS实例名称（session实例）
+      sessionCache:
+        mode: SINGLE
+        nodes:
+          - 192.168.14.12:6379
+        maxRedirects: 3
+        database: 0
+        password:
+        timeoutSecond: 86400
+        pool:
+          maxTotal: 20
+          maxIdle: 20
+          minIdle: 0
+          maxWaitMillis: 1
+          minEvictableIdleTimeMillis: 1800000
+          numTestsPerEvictionRun: 3
+          softMinEvictableIdleTimeMillis: 1800000
+          testOnBorrow: false
+          testWhileIdle: true
+          testOnReturn: false
+          timeBetweenEvictionRunsMillis: -1
+    auditLog:
+      #审计日志输出类型：auditServiceAuditLog：输出到审计HSF服（如果实现了）务, localAuditLog：输出到本地审计日志, logstashAuditLog：输出到logstash（如果实现了）, mqAuditLog：输出到MQ,userDefine:业务自定义
+      type: mqAuditLog
+      #是否开启独立方法级审计（与全局审计互斥），如要使用，需要在controller方法上增加@EnableAuditLog
+      annotationAuditEnable: true
+      #是否启用该功能
+      enable: true
+      #是否开启全局审计
+      globalEnable: false
+      #不进行审计的白名单
+      ignoreList: /w/upload
+    mq:
+      instances:
+        mqAuditLog:
+          topicName: AUDITLOG_TOPIC
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          # rabbitMq:
+          #     rabbitmqPort: 5672
+          #     rabbitmqUser: admin
+          #     rabbitmqPassword: rd123456
+          #     rabbitmqVirtualHost: /
+          #     clientId: client-40009
+          rocketMq:
+            producerClientGroup: _ROCKETMQ_PRODUCER_DEFAULT_GROUP
+            # consumerClientGroup: _ROCKETMQ_CONSUMER_DEFAULT_GROUP
+            vipChannelEnable: false
+        userInfoDataPushMq:
+          # providerTopicName: userInfoDataPushT
+          consumerTopicName: userInfoDataPushT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877;
+          vendor: ROCKETMQ
+          rocketMq:
+            # producerClientGroup: _ROCKETMQ_PRODUCER_DATAPUSH_EQT_GROUP
+            consumerClientGroup: KISEN_DATAPUSH_EQT_GROUP
+            vipChannelEnable: false
+        eqtInfoDataPushMq:
+          providerTopicName: eqtInfoDataPushT
+          # consumerTopicName: eqtInfoDataPushT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            producerClientGroup: KISEN_DATAPUSH_EQT_GROUP
+            # consumerClientGroup: _ROCKETMQ_CONSUMER_DATAPUSH_EQT_GROUP
+            vipChannelEnable: false
+        storageInfoDataPushMq:
+          # providerTopicName: storageInfoDataPushT
+          consumerTopicName: storageInfoDataPushT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            # producerClientGroup: _ROCKETMQ_PRODUCER_DATAPUSH_EQT_GROUP
+            consumerClientGroup: KISEN_DATAPUSH_STORAGE_GROUP
+            vipChannelEnable: false
+        datacenterInfoDataPushMq:
+          #providerTopicName: datacenterInfoDataPushMqT
+          consumerTopicName: datacenterInfoDataPushMqT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            # producerClientGroup: KISEN_DATAPUSH_DC_GROUP
+            consumerClientGroup: KISEN_DATAPUSH_EQT_DATACENTER_GROUP
+            vipChannelEnable: false
+        msgInfoDataPushMq:
+          providerTopicName: msgInfoDataPushMqT
+          # consumerTopicName: msgInfoDataPushMqT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            producerClientGroup: _ROCKETMQ_PRODUCER_DATAPUSH_EQT_MSG_GROUP
+            # consumerClientGroup: _ROCKETMQ_CONSUMER_DATAPUSH_GROUP_MESSAGE
+            vipChannelEnable: false
+        # 设备报警相关mq配置 alarmResultInfoPushMq->equipmentAlarmStatusDataPushMq
+        alarmResultInfoPushMq:
+          providerTopicName: alarmProcessResultDataPushT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            producerClientGroup: KISEN_ALARM_RESULT_GROUP
+            vipChannelEnable: false
+        diagnosisEquipmentInfoDataPushMq:
+          consumerTopicName: diagnosisEqtInfoDataPushT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            consumerClientGroup: KISEN_DIAGNOSIS_EQT_GROUP
+            vipChannelEnable: false
+        alarmInfoDataPushMq:
+          consumerTopicName: alarmInfoDataPushT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            consumerClientGroup: KISEN_ALARM_INFO_EQT_GROUP
+            vipChannelEnable: false
+        alarmPointInfoDataPushMq:
+          consumerTopicName: alarmPointInfoDataPushT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            consumerClientGroup: KISEN_ALARM_POINT_INFO_EQT_GROUP
+            vipChannelEnable: false
+        equipmentAlarmStatusDataPushMq:
+          consumerTopicName: alarmStatusInfoDataPushT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            consumerClientGroup: KISEN_ALARM_STATUS_EQT_GROUP
+            vipChannelEnable: false
+        data2ThirdSystemMq:
+          providerTopicName: data2ThirdSystemMq
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            producerClientGroup: KISEN_DATAPUSH_LOCATION_GROUP
+            vipChannelEnable: false
+        braceletNeedEqtInfoMq:
+          providerTopicName: braceletNeedEqtInfoT
+          consumerTopicName: braceletNeedEqtInfoT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            producerClientGroup: CCSP_braceletNeedEqtInfo_group
+            consumerClientGroup: KISEN_braceletNeedEqtInfo_group
+            vipChannelEnable: false
+        braceletEqtInfoMq:
+          providerTopicName: braceletEqtInfoT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            producerClientGroup: KISEN_braceletEqtInfo_group
+            vipChannelEnable: false
+        opcAlarmMq:
+          providerTopicName: opcAlarmT
+          consumerTopicName: opcAlarmT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            producerClientGroup: KISEN_braceletNeedEqtInfo_group
+            consumerClientGroup: KISEN_braceletNeedEqtInfo_group
+            vipChannelEnable: false
+        deviceStatusPushMq:
+          providerTopicName: deviceStatusPushT
+          mqAddress: 192.168.14.13:9876;192.168.14.13:9877
+          vendor: ROCKETMQ
+          rocketMq:
+            producerClientGroup: KISEN_deviceStatusPush_group
+            vipChannelEnable: false
+    sessionRedis:
+      enable: true
+      #对应的REDIS实例名称
+      redisCacheKey: sessionCache
+      #该值需要与springboot内嵌tomcat对应的sessiontimeout一致
+      #springboot内嵌tomcat配置示例为：server.servlet.session.timeout: 3600s
+      timeoutSecond: 3600
+##########################################################
+#                   第三方在线诊断、评估服务器地址的配置
+##########################################################
+third:
+  online:
+    estimate:
+      ### 中瑞泰IEM系统；
+      iem:
+        webapi:
+          url: http://192.168.1.222/IEMWebApi/
+          user: admin
+    diagnosis:
+      ### 容知在线诊断系统；
+      ronds:
+        webapi:
+          url: http://223.244.82.230:1032/zuul/imom-business-ronds
