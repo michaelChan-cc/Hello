@@ -1,0 +1,25 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+Alice -> Michael: fuck
+Michael-->Alice:hi2
+
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+
+Alice -> Bob: Another authentication Request
+Alice <-- Bob: another authentication Response
+
+Alice -> Bob: hello
+Bob -> Bob: myself!
+Bob -> Bob: 11!
+
+Bob -> Lucy: 11!
+
+Bob -> Michael: 11!
+Michael -> Alice: hi
+
+Alice -> Michael: fuck
+Michael->Alice:hi2
+@enduml
