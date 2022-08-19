@@ -23,18 +23,18 @@ public class MyStopWatch {
         Thread.sleep(1220L);
         sw.stop();
 
-        System.out.println(sw.prettyPrint());
+//        System.out.println(sw.prettyPrint());
 //        System.out.println(sw.shortSummary());
 
 
 //        sw.setKeepTaskList(true); //是否构建TaskInfo信息
-       /* Arrays.stream(sw.getTaskInfo())
+        Arrays.stream(sw.getTaskInfo())
                 .forEach(sw1 ->
                             System.out.println(
                                     sw1.getTaskName()+" "+
                                     sw1.getTimeMillis()+" "+
                                     sw1.getTimeSeconds()
                             )
-                );*/
+                );
     }
 }
