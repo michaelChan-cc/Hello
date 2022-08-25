@@ -52,8 +52,9 @@ git checkout [分支名称]
 git push origin [分支名称]
 
 
-#六：删除本地分支
+#六：删除本地分支  -D 强制删除，不管是否merge
 git branch -d [分支名称]
+git branch -D [分支名称]   
 #七、删除github 远方分支  其中：分支前面：代表删除
 git push origin :[branch name]
 
