@@ -22,20 +22,27 @@ class StrategyUseServiceTest {
 
     @BeforeEach
     void setUp() {
+        System.out.println("up");
     }
 
     @AfterEach
     void tearDown() {
+        System.out.println("down");
     }
 
+    /**
+     *
+     */
     @Test
-    void resolveFile() {
-        strategyUseService.resolveFile(FileTypeResolveEnum.File_A_RESOLVE, "asd");
+     void resolveFile() {
+        assertDoesNotThrow(() -> strategyUseService.resolveFile(FileTypeResolveEnum.File_A_RESOLVE, "aaaaa"));
 
-        strategyUseService.resolveFile(FileTypeResolveEnum.File_B_RESOLVE, "asd");
+        assertDoesNotThrow(() -> strategyUseService.resolveFile(FileTypeResolveEnum.File_B_RESOLVE, "bbbb"));
     }
 
     @Test
     void setApplicationContext() {
+        assertEquals(1, 2);
+        System.out.println("setApplicationContext");
     }
 }
