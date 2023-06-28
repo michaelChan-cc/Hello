@@ -37,7 +37,7 @@ Kubernetes（k8s）是自动化容器操作的开源平台。这些容器操作�
 
 两地三中心包括本地生产中心、本地灾备中心、异地灾备中心。
 
-![img](D:\JetBrains\IntelliJ_directory\Learning\doc\k8s\K8s 超详细总结.assets\bdd6158a6789ef5e4e9ff1c0a530657d.jpeg)
+![img](/K8s 超详细总结.assets/bdd6158a6789ef5e4e9ff1c0a530657d.jpeg)
 
 两地三中心要解决的一个重要问题就是数据一致性问题。k8s使用etcd组件作为一个高可用、强一致性的服务发现存储仓库。用于配置共享和服务发现。
 
