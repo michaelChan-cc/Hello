@@ -11,6 +11,7 @@ package com.cc.algo.sort;
  * @version 1.0 Created on 2020/3/24 16:12
  */
 public class 快速排序 {
+    // test
     public static int[] qsort(int arr[], int start, int end) {
         int pivot = arr[start];
         int i = start;
